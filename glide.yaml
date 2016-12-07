@@ -1,0 +1,3 @@
+package: bitbucket.org/dizk/xlmapper
+import:
+- package: github.com/tealeg/xlsx
