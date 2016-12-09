@@ -2,9 +2,10 @@ package xlmapper
 
 import (
 	"errors"
-	"github.com/dizk/xlsx"
 	"reflect"
 	"strconv"
+
+	"github.com/dizk/xlsx"
 )
 
 const defaultStructTag = "xlmapper"
@@ -62,7 +63,13 @@ func (x *XlsxDecoder) NextRow() (map[string]string, error) {
 	// Create a map with HEADER->VALUE
 	headerToValue := make(map[string]string)
 	for i := 0; i < len(x.headers); i++ {
-		headerToValue[x.headers[i]] = row[i]
+		if row[i] != "" {
+			headerToValue[x.headers[i]] = row[i]
+		}
+	}
+
+	if len(headerToValue) == 0 {
+		return nil, nil
 	}
 
 	return headerToValue, nil
@@ -94,6 +101,11 @@ func (x *XlsxDecoder) unmarshallRow(row map[string]string, v interface{}) error 
 	vt := reflect.TypeOf(v).Elem()
 	if vt == nil {
 		return errors.New("Invalid type, must be pointer to a struct.")
+	}
+
+	// Empty row = empty struct
+	if row == nil {
+		return nil
 	}
 
 	// Iterate over the fields
